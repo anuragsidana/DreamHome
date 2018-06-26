@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% block title %}
+   {{ page_title }}
+{% endblock %}
+
+{% block body %}
+
+    {% if all_documents %}
+        <h3>Here are all my {{ page_title }}</h3>
+        <ul>
+            {% for document in all_documents %}
+                <!-- hard coded url not required -->
+                <!--  <li><a href="/music/{{ batch.id }}/">{{ batch.batch_title }}</a></li>-->
+                <!-- name of the url is used to reference a url here
+                /music/<batch_id>/   name=detail can be used to reference this url where batch_id is variable
+                # see urls.py for more
+                it helpful in the case when ever we want to change the url structure for getting detail of a song ,,, so only change in urls.py
+                -->
+                <li><a href="{% url 'document_detail' document.id %}">{{ document.doc_type }}</a></li>
+              <a href="{% url 'document_delete' document.id %}">Delete</a>
+
+            {% endfor %}
+
+        </ul>
+    {% else %}
+        <h3>You don't have any {{page_title}}</h3>
+    {% endif %}
+
+{% endblock %}
+
+{% endblock %}
+

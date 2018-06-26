@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if user.profile.is_admin %}
+
+<a href=" {% url 'signup' %}" > Create New Agent </a></br>
+<a href=" {% url 'executive_list' %}" > See All Executives </a>
+
+{% else %}
+  <h2>Welcome, {{ user.get_full_name }} <small>{{ user.username }}</small>!</h2>
+  <p>Your birth date: {{ user.profile.birth_date }}</p>
+
+  <a href=" {% url 'executive_detail' user.id  %} ">Visit Profie</a>
+
+{% endif %}
+{% endblock %}
+

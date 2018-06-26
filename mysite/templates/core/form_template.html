@@ -1,0 +1,51 @@
+
+
+<div class="container-fluid">
+
+    <div class="row">
+
+        <div class="col-sm-12 col-md-7">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <h3>{{ page_title }}</h3>
+                    {% if error_message %}
+                    <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+                    <!-- a get request on the page when the form loaded and a a post request on the same page when we submit the form -->
+                    <form class="form-horizontal" action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <!--model form will give us a dictionary of labels and types of the form entries
+                        ,from which we have to make a form . Below is the template to make each entry of form -->
+
+                        {% for field in form %}
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <span class="text-danger small">{{field.errors}}</span>
+                            </div>
+                            <label class="control-label col-sm-2">{{ field.label_tag }}</label>
+                            <div class="col-sm-10">
+                                {{ field }}
+                            </div>
+                        </div>
+
+                        {% endfor %}
+
+
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <!-- when submitted a new album will be created and in models.py we have written code to redirect
+                                the page to its detial page whenever a new album is created -->
+                                <button type="submit" class="btn btn-success">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Detail</title>
+</head>
+<body>
+details of customer
+<a href="{% url 'create_document' customer.id %}">Add Document</a>
+<a href="{% url 'document_list' customer.id %}">My Docs</a>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% block title %}
+   Detail
+{% endblock %}
+
+{% block body %}
+
+  <h2>Welcome, {{ user.get_full_name }} <small>{{ user.username }}</small>!</h2>
+  <p>Your birth date: {{ user.profile.birth_date }}</p>
+<p>Your id: {{ user.id }}</p>
+  <a href="{% url 'customer_list' user.id  %}" >My Customers</a>
+    <a href="{% url 'create_customer' user.id %}" >Create Customer</a>
+
+
+{% endblock %}
+
+{% endblock %}
+
