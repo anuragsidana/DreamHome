@@ -43,7 +43,7 @@ def user_is_valid(function):
 
 def customer_profile_access(function):
     def wrap(request,*args,**kwargs):
-        # import pdb;pdb.set_trace()
+
         id = kwargs.get('pk', '')
         customer=Customer.objects.get(id=id)
 

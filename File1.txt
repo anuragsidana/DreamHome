@@ -1,0 +1,45 @@
+total 64
+drwxr-xr-x  2 zopper zopper 4096 Jun 17 17:17 .
+drwxr-xr-x 28 zopper zopper 4096 Jun 17 09:50 ..
+-rw-rw-r--  1 zopper zopper 1213 Jun 12 18:01 forwarder~
+-rw-rw-r--  1 zopper zopper 1213 Jun 12 17:29 Untitled Document 3~
+-rw-rw-r--  1 zopper zopper 1022 Jun 13 14:19 forwarder
+-rw-rw-r--  1 zopper zopper  746 Apr 26 12:01 data
+-rw-rw-r--  1 zopper zopper  687 Apr 25 20:26 Untitled Document
+-rw-rw-r--  1 zopper zopper  654 Apr 24 23:12 Untitled Document 2
+-rw-rw-r--  1 zopper zopper  652 Apr 25 18:45 Untitled Document~
+-rw-rw-r--  1 zopper zopper  639 Jun 12 18:04 aggregator~
+-rw-rw-r--  1 zopper zopper  637 Jun 13 14:21 aggregator
+-rw-rw-r--  1 zopper zopper  192 Jun 16 18:09 read
+-rw-rw-r--  1 zopper zopper  185 Apr 26 16:06 26
+-rw-rw-r--  1 zopper zopper  176 Apr 27 16:44 27
+-rw-rw-r--  1 zopper zopper  127 Apr 26 11:14 26~
+-rw-rw-r--  1 zopper zopper   70 Apr 27 16:43 27~
+-rw-rw-r--  1 zopper zopper    0 Apr 26 11:28 data~
+-rw-rw-r--  1 zopper zopper    0 Apr 20 19:51 eng~
+-rw-rw-r--  1 zopper zopper    0 Jun 17 17:17 File1.txt
+-rw-rw-r--  1 zopper zopper    0 Jun 16 18:08 read~
+-rw-rw-r--  1 zopper zopper    0 Apr 24 22:44 Untitled Document 2~
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+hiii anurag here ,,, how are you 

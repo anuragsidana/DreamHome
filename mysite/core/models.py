@@ -16,7 +16,7 @@ class Profile(models.Model):
     birth_date = models.DateField(null=True, blank=True)
     is_admin = models.BooleanField(default=False)
     # ADMIN_CHOICE = (("YES", True), ("NO", False))
-    is_admin = models.BooleanField(default=False)
+    # is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username
@@ -48,9 +48,61 @@ class Customer(models.Model):
     def __str__(self):
         return self.first_name
 
+import os
+#https://stackoverflow.com/questions/2680391/in-django-changing-the-file-name-of-an-uploaded-file
+# def update_filename(name):
+#
+#     def wrapper(instance,filename):
+#         path = "documents/%Y/%m/%d/" + instance.doc_type
+#         format = instance.userid + instance.transaction_uuid + instance.file_extension
+#         return os.path.join(path, name)
+#
+#     return wrapper
+#
+#
+# import os
+# from uuid import uuid4
+#
+# def path_and_rename(path):
+#     def wrapper(instance, filename):
+#         ext = filename.split('.')[-1]
+#         # get filename
+#         if instance.pk:
+#             filename = '{}.{}'.format(instance.pk, ext)
+#         else:
+#             # set filename as random string
+#             filename = '{}.{}'.format(uuid4().hex, ext)
+#         # return the whole path to the file
+#         return os.path.join(path, filename)
+#     return wrapper
+
+
+from docx import Document
+from docx.shared import Inches
+def user_directory_path(instance, filename):
+    path = 'documents/user_{0}/{1}.docx'.format(instance.customer.id, instance.doc_type)
+    # doc.save(path)
+
+    try:
+        doc = Document(path)
+        doc.add_page_break()
+    except Exception as e:
+        doc = Document()
+        print(e)
+    #
+    # doc.add_picture('documents/user_8/Screenshot_from_2018-04-15_031105.png',width=Inches(4.0))
+    # doc.save(path)
+
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'documents/user_{0}/{1}'.format(instance.customer.id, filename)
+
+
+
 class Docs(models.Model):
     customer=models.ForeignKey(Customer,on_delete=models.SET_NULL,null=True)
     doc_type=models.CharField(max_length=200)
+    doc_file=models.FileField(null=True,upload_to=user_directory_path)
+
 
     # whenever a new Document created redirect it to its details page
     def get_absolute_url(self):
@@ -59,4 +111,6 @@ class Docs(models.Model):
 
     def __str__(self):
         return self.doc_type
+
+
 

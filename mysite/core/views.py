@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, authenticate
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 
 from mysite.core.forms import ExecutiveSignUpForm,CustomerSignUpForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -27,7 +27,9 @@ def signup(request):
             user.save()
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=user.username, password=raw_password)
-            login(request, user)
+            import pdb;pdb.set_trace()
+            if(request.user.profile.is_admin==False):
+              login(request, user)
             return redirect('home')
     else:
         form = ExecutiveSignUpForm()
@@ -82,6 +84,14 @@ class ExecutiveCustomerListView(generic.ListView):
     def get_queryset(self):
         # query passed in the search box
         query = self.request.GET.get("q")
+        if query:
+            # title changed
+            self.title = "Search Results"
+            return Profile.objects.filter(
+                Q(customer_first_name__icontains=query) |
+                Q(custoemr_last_name__icontains=query)
+
+            )
 
         # import  pdb;pdb.set_trace()
         key = self.kwargs['pk']
@@ -122,7 +132,8 @@ class ExecutiveListView(generic.ListView):
             )
 
         # if its a simple call to get all the objects then  it will return all list items in object_list variable by default
-        return Profile.objects.exclude(is_admin=True)
+        #return Profile.objects.exclude(is_admin=True)
+        return Profile.objects.all()
 
         # this is used to pass extra context data in case of generic classes
 
@@ -138,6 +149,13 @@ class ExecutiveListView(generic.ListView):
 class ExecutiveDetailView(generic.DetailView):
     model = Profile
     template_name ='executive/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ExecutiveDetailView, self).get_context_data()
+        context['user_name']=Profile.objects.get(id=self.kwargs['pk']).user.username
+        return context
+
+
 
 @method_decorator(decorators,name='dispatch')
 class ExecutiveDeleteView(LoginRequiredMixin, DeleteView):
@@ -283,26 +301,33 @@ class CustomerDeleteView(DeleteView):
 # Documents ..........................................................
 
 
-@method_decorator([login_required, customer_profile_access], name='dispatch')
+from .utils import saveToDoc
 class DocumentCreateView(generic.CreateView):
     model = Docs
     template_name = 'docs/docs_form.html'
     # returned object stored in this  'by default its object_list'
     context_object_name = 'all_customers'
     title="Create Document"
-    fields = ['doc_type']
+    fields = ['doc_type','doc_file']
 
     def get_context_data(self):
         # Call the base implementation first to get a context
         context = super(DocumentCreateView, self).get_context_data()
-        # import pdb;pdb.set_trace()
+
         context['page_title'] = self.title
+
         return context
 
 
     def form_valid(self, form):
         docs = form.save(commit=False)
         docs.customer=Customer.objects.get(id=self.kwargs['pk'])
+
+        form.save(commit=True)
+
+        #add this document to doc file
+        saveToDoc(self.kwargs['pk'])
+
         return super(DocumentCreateView, self).form_valid(form)
 
 
@@ -358,5 +383,260 @@ from .decorators import user_is_admin
 @user_is_admin
 def SignUp(request):
     return render(request,'test.html')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####################################################################################
+from rest_framework import viewsets,generics
+from .serializers import ExecutiveSerializers,CustomerSerializers
+from django.views.decorators.csrf import csrf_exempt
+from .models import Customer,Profile
+from django.http import HttpResponse,JsonResponse
+from rest_framework.renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
+from rest_framework import permissions
+from .permissions import IsAdmin
+
+
+
+
+@csrf_exempt
+def customer_list(request):
+    if request.method=='GET':
+        customers=Customer.objects.all()
+        serializer=CustomerSerializers(customers,many=True)
+        return JsonResponse(serializer.data,safe=False)
+
+    elif request.method=='POST':
+        from django.utils.six import BytesIO
+        stream = BytesIO(request)
+        data=JSONParser.parse(stream)
+        serializer=CustomerSerializers(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data,status=201)
+        return JsonResponse(serializer.errors, status=400)
+
+class ApiAgentCustomerList(generics.ListCreateAPIView):
+
+    serializer_class = CustomerSerializers
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+  # returns the queryset that should be used for  for list views, and that should be used as the base for lookups in detail views.Defaults to returning the queryset specified by the queryset attribute.
+    def get_queryset(self):
+        #import pdb;pdb.set_trace()
+        query_params=self.request.GET
+
+
+        if(self.request.user.profile.is_admin==False):
+            customers = Customer.objects.filter(agent__id=self.request.user.id)
+        elif id in query_params:
+            customers = Customer.objects.filter(agent__id=query_params['id'])
+        elif all in  query_params:
+            customers=Customer.objects.all()
+        else:
+            customers=None
+
+
+        return customers
+
+    def perform_create(self, serializer):
+        serializer.save(agent=self.request.user.profile)
+
+    def get_paginate_by(self):
+        """
+        Use smaller pagination for HTML representations.
+        """
+        if self.request.accepted_renderer.format == 'html':
+            return 20
+        return 100
+
+
+
+
+
+class ApiExecutiveList(generics.ListCreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ExecutiveSerializers
+
+    permission_classes = (permissions.IsAuthenticated,IsAdmin,)
+
+    def get_queryset(self):
+            return Profile.objects.all()
+
+    # def perform_create(self, serializer):
+    #     data=serializer.data
+    #     if serializer.is_valid(raise_exception=ValueError) :
+    #         serializer.create(validated_data=data)
+    #         return
+
+    def get_paginate_by(self):
+        """
+        Use smaller pagination for HTML representations.
+        """
+        if self.request.accepted_renderer.format == 'html':
+            return 20
+        return 100
+
+
+class ApiCustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Customer.objects.all()
+
+    serializer_class = CustomerSerializers
+
+    # def get_object(self):
+    #     username=self.kwargs['username']
+    #     return get_object_or_404(Customer,username=username)
+
+from .serializers import UserUpdateSerialier
+class UserUpdateAPIView(generics.RetrieveUpdateAPIView):
+    # permission_classes = (permissions.IsAdminUser,)
+    #queryset = User.objects.all()
+    serializer_class = UserUpdateSerialier
+
+    def get_object(self):
+        import pdb;pdb.set_trace()
+        data=self.request.POST
+        username = self.kwargs["username"]
+        return get_object_or_404(User, username=username)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+
+
+
+
+
+
+
+
+
+
+
+class CustomerViewSet(viewsets.ModelViewSet):
+    queryset = Customer.objects.all()
+    serializer_class = CustomerSerializers
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+
+
+class ExecutiveViewSet(viewsets.ModelViewSet):
+    queryset = Profile.objects.all()
+    serializer_class = ExecutiveSerializers
+
+from rest_framework import status
+from .serializers import ChangePasswordSerializer
+from django.contrib.auth import update_session_auth_hash
+class ApiChangePasswordView(generics.UpdateAPIView):
+    serializer_class = ChangePasswordSerializer
+    model=User
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+
+
+    def get_object(self):
+        #import pdb;pdb.set_trace()
+        # if(self.request.user.profile.is_admin==True)
+        #     obj
+        obj=self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        is_admin=self.request.user.profile.is_admin
+        if(is_admin):
+            self.object=User.objects.get(id=kwargs['pk'])
+        else:
+             self.object=self.get_object()
+        serializer=self.get_serializer(data=request.data)
+        #import pdb;pdb.set_trace()
+
+        if serializer.is_valid():
+            if(not is_admin):
+                if not self.object.check_password(serializer.data.get("old_password")):
+                    return Response({"old_password": "wrong password"}, status=status.HTTP_400_BAD_REQUEST)
+
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            update_session_auth_hash(request,self.object)
+
+
+            return Response("Success",status=status.HTTP_200_OK)
+
+        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+#Creatng an endpoint for the root of our api
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from  rest_framework.reverse import reverse
+
+def api_root(request,format=None):
+    return  JsonResponse(
+        {
+            'users':reverse('customer-list',request=request,format=format),
+            'executives':reverse('executive-list',request=request,format=None)
+        }
+
+    )
+
+
+
+
+
+
+
 
 

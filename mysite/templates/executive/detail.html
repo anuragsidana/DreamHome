@@ -7,7 +7,7 @@
 
 {% block body %}
 
-  <h2>Welcome, {{ user.get_full_name }} <small>{{ user.username }}</small>!</h2>
+  <h2>Welcome,<small>{{user_name }}</small>!</h2>
   <p>Your birth date: {{ user.profile.birth_date }}</p>
 <p>Your id: {{ user.id }}</p>
   <a href="{% url 'customer_list' user.id  %}" >My Customers</a>

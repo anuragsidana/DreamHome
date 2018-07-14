@@ -1,0 +1,12 @@
+postman https://blog.bluematador.com/posts/postman-how-to-install-on-ubuntu-1604/
+https://askubuntu.com/questions/704632/failed-to-create-symbolic-link-what-should-i-do   unlink
+
+define custom test runner https://stackoverflow.com/questions/4606756/how-can-i-specify-a-database-for-django-tests-to-use-instead-of-having-it-build
+https://stackoverflow.com/questions/4606756/how-can-i-specify-a-database-for-django-tests-to-use-instead-of-having-it-build
+
+Serializer fields http://www.tomchristie.com/rest-framework-2-docs/api-guide/fields
+
+one branch
+https://stackoverflow.com/questions/6368987/how-do-i-fetch-only-one-branch-of-a-remote-git-repository
+
+undo last commit git reset HEAD~ 
